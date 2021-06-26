@@ -1,4 +1,4 @@
-# Place this file in /etc/ude/rules.d/
+# Place this file in /etc/udev/rules.d/
 # Then call 'sudo udevadm control --reload'
 #
 # It listens for the addition of /dev/input/event* devices
