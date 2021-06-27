@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Usage: ./generate_qrcode.py 'Text to Encrypt'
 # e.g. ./generate_qrcode.py 'My Name;My Contact Details'

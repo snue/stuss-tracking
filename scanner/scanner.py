@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # The input is either a command to change scanner behavior:
 #  - 'kommt', 'geht', 'reserviert' to assign visitor actions

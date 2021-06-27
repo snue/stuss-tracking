@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import mysql.connector
 from datetime import datetime
 
@@ -25,7 +25,6 @@ def get_cursor():
     return db.cursor(prepared=True)
 
 get_user_stmt = 'SELECT * FROM stammdaten WHERE besucher_id = %s LIMIT 1'
-insert_user_stmt = 'INSERT INTO stammdaten (besucher_id, kontakt, status, zustand) VALUES (%s, %s, %s, %s)'
 update_user_stmt = 'UPDATE stammdaten SET status= %s, zustand = %s WHERE besucher_id = %s'
 track_user_stmt = 'INSERT INTO verlaufsdaten (zeitstempel, scanner, besucher_id, aktion) VALUES (%s, "webui", %s, %s)'
 
