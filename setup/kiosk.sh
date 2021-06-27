@@ -10,5 +10,7 @@ sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' /home/pi/.config/chromi
 sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' /home/pi/.config/chromium/Default/Preferences
 
 # launch chromium in kiosk mode
-/usr/bin/chromium-browser --noerrdialogs --disable-infobars --kiosk http://localhost:5000 http://localhost:19999 &
+/usr/bin/chromium-browser --noerrdialogs --disable-infobars --kiosk --incognito \
+			--disable-translate --disable-cache --disk-cache-dir=/dev/null \
+			http://localhost:5000 &
 
