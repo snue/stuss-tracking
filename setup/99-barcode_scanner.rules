@@ -2,6 +2,18 @@
 # Then call 'sudo udevadm control --reload'
 #
 # It listens for the addition of /dev/input/event* devices
-# with Vendor/Product ID 0416:c141 (1D Barcode Scanner HID keyboards)
+# with Vendor/Product ID of the 2D Barcode Scanner HID keyboards.
+# Unfortunately the new scanners all come with different/debug IDs,
+# but at least we can rename them individually.
+#
 # These are tagged so that systemd starts a service script for each.
-ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="0416", ATTRS{idProduct}=="c141", TAG+="systemd", ENV{SYSTEMD_WANTS}="barcode_scanner@%k.service"
+
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="0581", ATTRS{idProduct}=="0106", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner1", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner1.service"
+
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="0008", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner2", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner2.service"
+
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="1012", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner3", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner3.service"
+
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="2045", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner4", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner4.service"
+
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="f037", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner5", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner5.service"
