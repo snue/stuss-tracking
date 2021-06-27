@@ -3,27 +3,30 @@
 {% block content %}
 <h1>Verlaufsdaten</h1>
 <form class="form-inline my-2 my-lg-0">
-<input class="form-control mr-sm-2" type="number" placeholder="ID" aria-label="ID" name="besucher_id" maxlength="5" size="5" value="{{ id }}">
+    <input class="form-control mr-sm-2" type="number" placeholder="ID" aria-label="ID" name="besucher_id" value="{{ id }}">
+<input class="form-control mr-sm-2" type="text" placeholder="Scanner" aria-label="ID" name="scanner" value="{{ scanner }}">
 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" formaction="/verlaufsdaten" formmethod="get">filtern</button>
 </form>
 <table class="table table-striped">
     <thead>
         <tr>
             <th>Zeitstempel</th>
+            <th>Scanner</th>
             <th>ID</th>
-            <th>Alias</th>
+            <th>Name</th>
             <th>Status</th>
             <th>Aktion</th>
         </tr>
     </thead>
     <tbody>
-    {% for zeitstempel, besucher_id, alias, status, aktion in verlauf %}
+    {% for zeitstempel, scanner_id, b_id, kontakt, status, aktion in verlauf %}
     <tr>
     <td>{{ zeitstempel }}</td>
-    <td>{{ besucher_id }}</td>
-    <td>{{ alias }}</td>
-    <td>{{ status }}</td>
-    <td>{{ aktion }}</td>
+    <td><a href="./verlaufsdaten?scanner={{ scanner_id.decode() }}">{{ scanner_id.decode() }}</a></td>
+    <td><a href="./verlaufsdaten?besucher_id={{ b_id }}">{{ b_id }}</a></td>
+    <td><a href="./stammdaten?besucher_id={{ b_id }}">{{ kontakt.decode()[:kontakt.decode().find(';')] }}</a></td>
+    <td>{{ status.decode() }}</td>
+    <td>{{ aktion.decode() }}</td>
     </tr>
     {% endfor %}
     </tbody>

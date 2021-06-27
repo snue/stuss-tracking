@@ -4,9 +4,9 @@
 <table class="table table-striped">
     <tbody>
     <tr class="table-primary"><td>Registriert</td><td>{{ registriert }}</td></tr>
-    <tr class="table-{% if anwesend < ((gast_max + crew_band_max) * 0.8) %}success{% elif anwesend < (gast_max + crew_band_max) %}warning{% else %}danger{% endif %}"><td>Aktuell auf dem Gel&auml;nde (davon Unbekannte) / Maximum</td><td>{{ anwesend }} ({{ anwesend - anwesend_gast - anwesend_crew_band }}) / {{ gast_max + crew_band_max }}</td></tr>
+    <tr class="table-{% if anwesend < ((gast_max + crew_band_max) * 0.8) %}success{% elif anwesend < (gast_max + crew_band_max) %}warning{% else %}danger{% endif %}"><td>Aktuell auf dem Gel&auml;nde / Maximum</td><td>{{ anwesend }} / {{ gast_max + crew_band_max }}</td></tr>
     <tr class="table-info"><td>Reservierungen</td><td>{{ reserviert_gast + reserviert_crew_band }}</td></tr>
-    <tr class="table-default"><td>Abwesend inkl. Reservierungen (davon Unbekannte)</td><td>{{ abwesend }} ({{ abwesend - abwesend_gast - abwesend_crew_band }})</td></tr>
+    <tr class="table-default"><td>Abwesend inkl. Reservierungen</td><td>{{ abwesend }}</td></tr>
     </tbody>
 </table>
 <h2>G&auml;ste</h2>
@@ -45,10 +45,10 @@
         </tr>
     </thead>
     <tbody>
-{% for anzahl, zustand, status in counts %}
+    {% for anzahl, zustand, status in counts %}
     <tr>
-    <td>{{ status }}</td>
-    <td>{{ zustand }}</td>
+    <td>{{ status.decode() }}</td>
+    <td>{{ zustand.decode() }}</td>
     <td>{{ anzahl }}</td>
     </tr>
     {% endfor %}

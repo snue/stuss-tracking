@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Flask, render_template, request, send_from_directory
 app = Flask(__name__)
 
+import mmh3
 
 def init_db():
     return mysql.connector.connect(
@@ -23,71 +24,41 @@ def get_cursor():
         db = init_db()
     return db.cursor(prepared=True)
 
-get_user_stmt = '''
-SELECT * FROM stammdaten s
-LEFT JOIN zustandsdaten z
-ON s.besucher_id = z.besucher_id
-WHERE s.besucher_id = %s
-LIMIT 1
-'''
-
-insert_status_stmt = 'INSERT INTO zustandsdaten (besucher_id, zustand) VALUES (%s, %s)'
-update_status_stmt = 'UPDATE zustandsdaten SET zustand = %s WHERE besucher_id = %s'
-check_id_stmt = 'SELECT zustand FROM zustandsdaten WHERE besucher_id = %s LIMIT 1'
-track_user_stmt = 'INSERT INTO verlaufsdaten (zeitstempel, besucher_id, aktion) VALUES (%s, %s, %s)'
-
-new_user_stmt = '''
-INSERT INTO stammdaten
-    (besucher_id, name, adresse1, plz, adresse2,
-     telefon, email, status, coronawarn)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-'''
-
-update_user_stmt = '''
-UPDATE stammdaten
-SET name = %s, adresse1 = %s, plz = %s, adresse2 = %s,
-    telefon = %s, email = %s, status = %s,
-    coronawarn = %s
-WHERE besucher_id = %s
-'''
+get_user_stmt = 'SELECT * FROM stammdaten WHERE besucher_id = %s LIMIT 1'
+insert_user_stmt = 'INSERT INTO stammdaten (besucher_id, kontakt, status, zustand) VALUES (%s, %s, %s, %s)'
+update_user_stmt = 'UPDATE stammdaten SET status= %s, zustand = %s WHERE besucher_id = %s'
+track_user_stmt = 'INSERT INTO verlaufsdaten (zeitstempel, scanner, besucher_id, aktion) VALUES (%s, "webui", %s, %s)'
 
 count_user_status_stmt = '''
 SELECT
-  COUNT(DISTINCT(b.besucher_id)) AS anzahl
-  ,IFNULL(z.zustand,"nicht gesehen") AS zustand
-  ,IFNULL(s.status,"nicht registriert") AS status
-FROM
-(SELECT DISTINCT(besucher_id)
- FROM zustandsdaten
- UNION
- SELECT DISTINCT(besucher_id)
- FROM stammdaten) AS b
-LEFT JOIN zustandsdaten AS z
-ON z.besucher_id = b.besucher_id
-LEFT JOIN
-  (SELECT besucher_id, status FROM stammdaten) AS s
-ON s.besucher_id = b.besucher_id
-GROUP BY z.zustand, s.status
-ORDER BY s.status, z.zustand
+  COUNT(DISTINCT(besucher_id)) AS anzahl
+  ,zustand
+  ,status
+FROM stammdaten
+GROUP BY zustand, status
+ORDER BY status, zustand
 '''
 
 get_tracking_data_stmt = '''
 SELECT
-zeitstempel, v.besucher_id,
-IFNULL(soundex(name), "unbekannt") as alias,
-IFNULL(status, "unbekannt") as status,
+zeitstempel,
+scanner,
+v.besucher_id,
+kontakt,
+status,
 aktion
 FROM verlaufsdaten v
 LEFT JOIN
-(SELECT name, status, besucher_id FROM stammdaten) as s
+(SELECT kontakt, status, besucher_id FROM stammdaten) as s
 on v.besucher_id = s.besucher_id
 WHERE
 v.besucher_id = IFNULL(%s,v.besucher_id)
+AND v.scanner = IFNULL(%s,v.scanner)
 ORDER BY zeitstempel DESC
 '''
 
-GAST_MAX = 700
-CREW_BAND_MAX = 100
+GAST_MAX = 800
+CREW_BAND_MAX = 200
 
 @app.route('/stammdaten',methods=['POST','GET'])
 def stammdaten():
@@ -101,39 +72,27 @@ def stammdaten():
         besucher_id = request.form.get('besucher_id', default=0, type=int)
         cursor.execute(get_user_stmt, (besucher_id,))
         besucher = cursor.fetchall()
-
-        name = request.form.get('name')
-        adresse1 = request.form.get('adresse1')
-        plz = request.form.get('plz')
-        adresse2 = request.form.get('adresse2')
-        telefon = request.form.get('telefon')
-        email = request.form.get('email')
         status = request.form.get('status')
-        coronawarn = request.form.get('coronawarn', default=0, type=int)
         zustand = request.form.get('zustand')
 
         if len(besucher) == 0:
-            message = 'Neuer Besucher mit ID {} hinzugef&uuml;gt.'.format(besucher_id)
-            print('Adding new user: {}'.format(besucher_id))
-            cursor.execute(new_user_stmt, (besucher_id,
-                                           name, adresse1, plz, adresse2,
-                                           telefon,email,status,coronawarn))
+            message = 'Besucher mit ID {} existiert nicht.'.format(besucher_id)
+            lvl='warning'
+            name = ''
+            kontakt = ''
         else:
             message = 'Besucher mit ID {} aktualisiert.'.format(besucher_id)
+            print(besucher)
+            data = besucher[0][1].decode()
+            name = data[:data.find(';')]
+            kontakt = data[data.find(';')+1:]
             print('Updating user {}'.format(besucher_id))
-            cursor.execute(update_user_stmt, (name, adresse1, plz, adresse2,
-                                              telefon,email,status,coronawarn,
-                                              besucher_id))
-        lvl = 'success'
+            cursor.execute(update_user_stmt, (status, zustand, besucher_id))
+            lvl = 'success'
 
-        now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute(track_user_stmt, (now, besucher_id, zustand))
-        cursor.execute(check_id_stmt, (besucher_id,))
-        z = cursor.fetchall()
-        if len(z) == 0:
-            cursor.execute(insert_status_stmt, (besucher_id, zustand,))
-        else:
-            cursor.execute(update_status_stmt, (zustand, besucher_id,))
+            now = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute(track_user_stmt, (now, besucher_id, status))
+            cursor.execute(track_user_stmt, (now, besucher_id, zustand))
 
         db.commit()
         cursor.close()
@@ -141,13 +100,7 @@ def stammdaten():
         besucher_id = request.args.get('besucher_id', default=0, type=int)
         cursor.execute(get_user_stmt, (besucher_id,))
         besucher = cursor.fetchall()
-        cursor.execute(check_id_stmt, (besucher_id,))
-        z = cursor.fetchall()
         cursor.close()
-        if len(z):
-            zustand = z[0][0]
-        else:
-            zustand = 'reserviert'
 
         if len(besucher) == 0:
             message = 'Besucher mit ID {} existiert nicht.'.format(besucher_id)
@@ -157,19 +110,14 @@ def stammdaten():
                 besucher_id = ''
                 message = ''
             return render_template('stammdaten.html', id = besucher_id,
-                                   zustand = zustand, message = message, lvl = lvl)
+                                   zustand = 'reserviert', message = message, lvl = lvl)
         else:
             for b in besucher:
-                name = b[1]
-                adresse1 = b[2]
-                plz = b[3]
-                adresse2 = b[4]
-                telefon = b[5]
-                email = b[6]
-                status = b[7]
-                coronawarn = b[8]
-                zustand = ('reserviert', b[10])[ len(b) > 10 ]
-
+                data = b[1].decode()
+                status = b[2].decode()
+                zustand = b[3].decode()
+                name = data[:data.find(';')]
+                kontakt = data[data.find(';')+1:]
                 if besucher_id != b[0]:
                     print('Warning: unexpected ID {} in query for {}'.format(
                         b[0], besucher_id))
@@ -177,28 +125,19 @@ def stammdaten():
                 print("""
                 ID:      {}
                 Name:    {}
-                Adresse: {}
-                         {} {}
-                Telefon: {}
-                Email:   {}
+                Kontakt: {}
                 Status:  {}
-                CoronaWarn: {}
                 Zustand: {}
-                """.format(besucher_id, name, adresse1, plz, adresse2, telefon,
-                           email, status, coronawarn, zustand))
+                """.format(besucher_id, name, kontakt,
+                           status, zustand))
 
             message = 'Besucher mit ID {} geladen.'.format(besucher_id)
 
     return render_template('stammdaten.html',
                            id = besucher_id,
                            name = name,
-                           adresse1 = adresse1,
-                           plz = plz,
-                           adresse2 = adresse2,
-                           telefon=telefon,
-                           email = email,
+                           kontakt = kontakt,
                            status = status,
-                           coronawarn = coronawarn,
                            zustand = zustand,
                            message = message,
                            lvl = lvl)
@@ -209,11 +148,14 @@ def verlaufsdaten():
     cursor = get_cursor()
     besucher_id = request.args.get('besucher_id')
     besucher_id = (besucher_id, None)[besucher_id == '']
-    cursor.execute(get_tracking_data_stmt, (besucher_id,))
+    scanner = request.args.get('scanner')
+    scanner = (scanner, None)[scanner == '']
+    cursor.execute(get_tracking_data_stmt, (besucher_id, scanner))
     verlauf = cursor.fetchall()
     cursor.close()
     return render_template('verlaufsdaten.html',
-                           id = besucher_id,
+                           id = (besucher_id, '')[ besucher_id == None ],
+                           scanner = (scanner, '')[ scanner == None ],
                            verlauf = verlauf)
 
 
@@ -223,36 +165,35 @@ def main():
     cursor.execute(count_user_status_stmt)
     counts = cursor.fetchall()
     cursor.close()
-    anwesend = sum((0,anzahl)[zustand == 'kommt' ] for anzahl, zustand, status in counts)
-    anwesend_gast = sum((0,anzahl)[status == 'gast' and
-                                   zustand == 'kommt'] for
+    anwesend = sum((0,anzahl)[zustand.decode() == 'kommt' ] for anzahl, zustand, status in counts)
+    anwesend_gast = sum((0,anzahl)[status.decode() == 'gast' and
+                                   zustand.decode() == 'kommt'] for
                         anzahl, zustand, status in counts)
-    anwesend_crew_band = sum((0,anzahl)[(status == 'crew' or
-                                         status == 'band') and
-                                   zustand == 'kommt'] for
+    anwesend_crew_band = sum((0,anzahl)[(status.decode() == 'crew' or
+                                         status.decode() == 'band') and
+                                   zustand.decode() == 'kommt'] for
                         anzahl, zustand, status in counts)
-    abwesend = sum((0,anzahl)[zustand == 'geht' or
-                              zustand == 'reserviert'] for
+    abwesend = sum((0,anzahl)[zustand.decode() == 'geht' or
+                              zustand.decode() == 'reserviert'] for
                    anzahl, zustand, status in counts)
-    abwesend_gast = sum((0,anzahl)[status == 'gast' and
-                                   (zustand == 'geht' or
-                                    zustand == 'reserviert')] for
+    abwesend_gast = sum((0,anzahl)[status.decode() == 'gast' and
+                                   (zustand.decode() == 'geht' or
+                                    zustand.decode() == 'reserviert')] for
                         anzahl, zustand, status in counts)
-    abwesend_crew_band = sum((0,anzahl)[((status == 'crew' or
-                                         status == 'band') and
-                                   (zustand == 'geht' or
-                                    zustand == 'reserviert'))] for
+    abwesend_crew_band = sum((0,anzahl)[((status.decode() == 'crew' or
+                                         status.decode() == 'band') and
+                                   (zustand.decode() == 'geht' or
+                                    zustand.decode() == 'reserviert'))] for
                         anzahl, zustand, status in counts)
-    reserviert_gast = sum((0,anzahl)[zustand == 'reserviert' and
-                                (status == 'gast' or
-                                 status == 'nicht registriert') ] for
+    reserviert_gast = sum((0,anzahl)[zustand.decode() == 'reserviert' and
+                                (status.decode() == 'gast' or
+                                 status.decode() == 'nicht registriert') ] for
                      anzahl, zustand, status in counts)
-    reserviert_crew_band = sum((0,anzahl)[zustand == 'reserviert' and
-                                (status == 'crew' or
-                                 status == 'band') ] for
+    reserviert_crew_band = sum((0,anzahl)[zustand.decode() == 'reserviert' and
+                                (status.decode() == 'crew' or
+                                 status.decode() == 'band') ] for
                      anzahl, zustand, status in counts)
-    registriert = sum((0,anzahl)[status != 'nicht registriert'] for
-                      anzahl, zustand, status in counts)
+    registriert = sum(anzahl for anzahl, zustand, status in counts)
 
     return render_template('index.html',
                            counts = counts,
