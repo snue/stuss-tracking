@@ -109,7 +109,7 @@ def stammdaten():
                 besucher_id = ''
                 message = ''
             return render_template('stammdaten.html', id = besucher_id,
-                                   zustand = 'reserviert', message = message, lvl = lvl)
+                                   zustand = 'kommt', message = message, lvl = lvl)
         else:
             for b in besucher:
                 data = b[1].decode()
