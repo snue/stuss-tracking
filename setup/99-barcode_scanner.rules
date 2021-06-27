@@ -8,12 +8,12 @@
 #
 # These are tagged so that systemd starts a service script for each.
 
-ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="0581", ATTRS{idProduct}=="0106", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner1", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner1.service"
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="0581", ATTRS{idProduct}=="0106", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", SYMLINK+="input/scanner1", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner1.service"
 
-ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="0008", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner2", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner2.service"
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="0008", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", SYMLINK+="input/scanner2", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner2.service"
 
-ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="1012", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner3", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner3.service"
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="1012", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", SYMLINK+="input/scanner3", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner3.service"
 
-ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="2045", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner4", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner4.service"
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="2045", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", SYMLINK+="input/scanner4", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner4.service"
 
-ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="f037", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", NAME+="input/scanner5", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner5.service"
+ACTION=="add", KERNEL=="event*", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="f037", ENV{.INPUT_CLASS}=="kbd", TAG+="systemd", SYMLINK+="input/scanner5", ENV{SYSTEMD_WANTS}="barcode_scanner@scanner5.service"
