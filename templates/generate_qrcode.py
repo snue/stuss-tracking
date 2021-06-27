@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Usage: ./generate_qrcode.py 'Text to Encrypt'
+# e.g. ./generate_qrcode.py 'My Name;My Contact Details'
+
 from base45 import b45decode, b45encode
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
