@@ -5,35 +5,38 @@
 <div class="alert alert-{{ lvl }}" role="alert">
 {{ message|safe }}
 </div>
+{% else %}
+<div class="alert" role="alert">&nbsp;</div>
 {% endif %}
 <h1>Stammdatenverwaltung</h1>
 <p class="lead"></p>
-<form class="form-inline my-2 my-lg-0">
-<ul style="list-style-type:none;">
+<ul style="list-style-type:none;float:left">
+<form class="form my-2 my-lg-0">
 <li>
-<input class="form-control mr-sm-2" type="number" placeholder="ID" aria-label="ID" name="besucher_id" value="{{ id }}">
+<input class="form-control mr-sm-2" style="display:inline;width:16em" type="number" placeholder="ID" aria-label="ID" name="besucher_id" value="{{ id }}">
 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" formaction="/stammdaten" formmethod="get">laden</button>
 </li>
-<li>
+<li style="margin-right:3em">
 <p></p>
-<input class="form-control mr-sm-2" type="text" placeholder="Name" aria-label="Name" size="50" maxlength="45" name="name" disabled="disabled" value="{{ name }}" onkeydown="return event.key != 'Enter';">
+<input class="form-control mr-sm-2" type="text" placeholder="Name" aria-label="Name" size="50" maxlength="45" name="name" disabled="disabled" value="{{ name }}">
+</li>
+<li style="margin-right:3em">
+<input class="form-control mr-sm-2" type="text" placeholder="Kontakt (E-Mail oder Telefon)" aria-label="Kontakt (E-Mail oder Telefon)" name="kontakt" size="50" disabled="disabled" value="{{ kontakt }}">
+</li>
+<li style="margin-top:1em">
+    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="Gast" name="status" value="gast" {% if status == "gast" or status is not defined %}checked{% endif %}><label>Gast</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="Band" name="status" value="band" {% if status == "band" %}checked{% endif %}><label>Band</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="Crew" name="status" value="crew" {% if status == "crew" %}checked{% endif %}><label>Crew</label>
 </li>
 <li>
-<input class="form-control mr-sm-2" type="text" placeholder="Kontakt (E-Mail oder Telefon)" aria-label="Kontakt (E-Mail oder Telefon)" name="kontakt" size="50" disabled="disabled" value="{{ kontakt }}" onkeydown="return event.key != 'Enter';">
+    <input class="form-control mr-sm-2" style="display:inline;width:0;margin-top:.5rem" type="radio" aria-label="kommt" name="zustand" value="kommt" {% if zustand == "kommt" %}checked{% endif %}><label>Anwesend</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="geht" name="zustand" value="geht" {% if zustand == "geht" %}checked{% endif %}><label>Abwesend</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="reserviert" name="zustand" value="reserviert" {% if zustand == "reserviert" %}checked{% endif %}><label>Reservierung</label>
 </li>
-<li>
-<input class="form-control mr-sm-2" type="radio" aria-label="Gast" name="status" value="gast" {% if status == "gast" or status is not defined %}checked{% endif %}>Gast&nbsp;&nbsp
-<input class="form-control mr-sm-2" type="radio" aria-label="Band" name="status" value="band" {% if status == "band" %}checked{% endif %}>Band&nbsp;&nbsp;
-<input class="form-control mr-sm-2" type="radio" aria-label="Crew" name="status" value="crew" {% if status == "crew" %}checked{% endif %}>Crew&nbsp;&nbsp;
-</li>
-<li>
-<input class="form-control mr-sm-2" type="radio" aria-label="kommt" name="zustand" value="kommt" {% if zustand == "kommt" %}checked{% endif %}>Anwesend&nbsp;&nbsp
-<input class="form-control mr-sm-2" type="radio" aria-label="geht" name="zustand" value="geht" {% if zustand == "geht" %}checked{% endif %}>Abwesend&nbsp;&nbsp;
-<input class="form-control mr-sm-2" type="radio" aria-label="reserviert" name="zustand" value="reserviert" {% if zustand == "reserviert" %}checked{% endif %}>Reservierung&nbsp;&nbsp;
-</li>
-<li>
+<li style="margin-top:1em">
 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" formaction="/stammdaten" formmethod="post">speichern</button>
 </li>
-<ul>
 </form>
+</ul>
+{{ svg }}
 {% endblock %}

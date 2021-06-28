@@ -2,10 +2,23 @@
 import mysql.connector
 from datetime import datetime
 
-from flask import Flask, render_template, request, send_from_directory
+from base45 import b45decode, b45encode
+from Crypto.Cipher import PKCS1_OAEP
+from Crypto.PublicKey import RSA
+from Crypto import Hash
+import mmh3
+import qrcode
+import qrcode.image.svg
+from lxml import etree
+
+from flask import Flask, render_template, request, send_from_directory, Markup
 app = Flask(__name__)
 
-import mmh3
+GAST_MAX = 800
+CREW_BAND_MAX = 200
+
+key = RSA.importKey(open('stuss2021_key.pub').read())
+cipher = PKCS1_OAEP.new(key, hashAlgo=Hash.SHA256)
 
 def init_db():
     return mysql.connector.connect(
@@ -56,8 +69,25 @@ AND v.scanner = IFNULL(%s,v.scanner)
 ORDER BY zeitstempel DESC
 '''
 
-GAST_MAX = 800
-CREW_BAND_MAX = 200
+
+def generate_qr_svg(msg):
+    ciphertext = cipher.encrypt(msg.encode())
+    b45 = b45encode(ciphertext)
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_Q,
+        box_size=10,
+        border=4,
+        image_factory=qrcode.image.svg.SvgPathFillImage
+    )
+    qr.add_data(b45)
+    qr.make(fit=True)
+    img = qr.make_image()
+    # Do not print codes for empty / short input
+    if len(msg) > 1:
+        img._img.append(img.make_path())
+    return etree.tostring(etree.ElementTree(img._img)).decode()
+
 
 @app.route('/stammdaten',methods=['POST','GET'])
 def stammdaten():
@@ -75,12 +105,12 @@ def stammdaten():
         zustand = request.form.get('zustand')
 
         if len(besucher) == 0:
-            message = 'Besucher mit ID {} existiert nicht.'.format(besucher_id)
+            message = 'Besucher*in mit ID {} existiert nicht.'.format(besucher_id)
             lvl='warning'
             name = ''
             kontakt = ''
         else:
-            message = 'Besucher mit ID {} aktualisiert.'.format(besucher_id)
+            message = 'Besucher*in mit ID {} aktualisiert.'.format(besucher_id)
             print(besucher)
             data = besucher[0][1].decode()
             name = data[:data.find(';')]
@@ -102,14 +132,15 @@ def stammdaten():
         cursor.close()
 
         if len(besucher) == 0:
-            message = 'Besucher mit ID {} existiert nicht.'.format(besucher_id)
+            message = 'Besucher*in mit ID {} existiert nicht.'.format(besucher_id)
             lvl = 'warning'
             print(message)
             if besucher_id == 0:
                 besucher_id = ''
                 message = ''
+            svg = generate_qr_svg(';')
             return render_template('stammdaten.html', id = besucher_id,
-                                   zustand = 'kommt', message = message, lvl = lvl)
+                                   zustand = 'kommt', svg = Markup(svg), message = message, lvl = lvl)
         else:
             for b in besucher:
                 data = b[1].decode()
@@ -130,14 +161,16 @@ def stammdaten():
                 """.format(besucher_id, name, kontakt,
                            status, zustand))
 
-            message = 'Besucher mit ID {} geladen.'.format(besucher_id)
+            message = 'Besucher*in mit ID {} geladen.'.format(besucher_id)
 
+    svg = generate_qr_svg('{};{}'.format(name,kontakt))
     return render_template('stammdaten.html',
                            id = besucher_id,
                            name = name,
                            kontakt = kontakt,
                            status = status,
                            zustand = zustand,
+                           svg = Markup(svg),
                            message = message,
                            lvl = lvl)
 
@@ -156,6 +189,48 @@ def verlaufsdaten():
                            id = (besucher_id, '')[ besucher_id == None ],
                            scanner = (scanner, '')[ scanner == None ],
                            verlauf = verlauf)
+
+
+@app.route('/qrcode',methods=['GET','POST'])
+def generate_qrcode():
+
+    message=''
+    lvl='info'
+
+    if request.method == 'POST':
+        # Generate Code / ID based on provided data
+        name = request.form.get('name')
+        kontakt = request.form.get('kontakt')
+        msg = '{};{}'.format(name, kontakt)
+        id = (mmh3.hash(msg), '')[name == '' and kontakt == '']
+    else:
+        # Look up ID in database
+        cursor = get_cursor()
+        id = request.args.get('besucher_id', default = 0, type = int)
+        cursor.execute(get_user_stmt, (id,))
+        besucher = cursor.fetchall()
+        cursor.close()
+        if len(besucher) == 0:
+            if id != 0:
+                message = 'Besucher*in mit ID {} existiert nicht.'.format(id)
+                lvl = 'warning'
+            name = ''
+            kontakt = ''
+        else:
+            message = 'Besucher*in mit ID {} geladen.'.format(id)
+            for b in besucher:
+                data = b[1].decode()
+                name = data[:data.find(';')]
+                kontakt = data[data.find(';')+1:]
+        msg = '{};{}'.format(name, kontakt)
+
+    # Generate QR Code
+    svg = generate_qr_svg(msg)
+    return render_template('qrcode.html',besucher_id=(id, '')[id == 0],
+                           name=(name, '')[name == None],
+                           kontakt=(kontakt, '')[kontakt == None],
+                           svg=Markup(svg),
+                           message = message, lvl = lvl)
 
 
 @app.route('/',methods=['GET'])

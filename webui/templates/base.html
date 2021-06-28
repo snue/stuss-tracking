@@ -25,13 +25,17 @@
             <li class="nav-item {% block verlaufsdaten %}{% endblock %}">
             <a class="nav-link" href="/verlaufsdaten">Verlaufsdaten</a>
             </li>
+            <li class="nav-item {% block qrcode %}{% endblock %}">
+                <a class="nav-link" href="/qrcode">QR Code</a>
+            </li>
             </ul>
             </div>
         </nav>
+        <p></p>
         <h3 class="text-muted">COVID-19 Besuchertracker App</h3>
         </div>
 
-        <div class="jumbotron">
+        <div class="jumbotron" id="maincontent">
             {% block content %}{% endblock %}
         </div>
         {% block morecontent %}{% endblock %}
