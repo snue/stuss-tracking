@@ -204,6 +204,9 @@ def generate_qrcode():
         kontakt = request.form.get('kontakt')
         msg = '{};{}'.format(name, kontakt)
         id = (mmh3.hash(msg), '')[name == '' and kontakt == '']
+        if id != '':
+            message = 'QR Code mit ID {} erfolgreich erstellt.'.format(id)
+            lvl = 'success'
     else:
         # Look up ID in database
         cursor = get_cursor()
