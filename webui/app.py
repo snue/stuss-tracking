@@ -67,6 +67,7 @@ WHERE
 v.besucher_id = IFNULL(%s,v.besucher_id)
 AND v.scanner = IFNULL(%s,v.scanner)
 ORDER BY zeitstempel DESC
+LIMIT 20
 '''
 
 
