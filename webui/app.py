@@ -25,7 +25,8 @@ def init_db():
         host="localhost",
         user="root",
         password="",
-        database="besuchertracker")
+        database="besuchertracker",
+        autocommit=True)
 
 db = init_db()
 
@@ -35,6 +36,7 @@ def get_cursor():
         db.ping(reconnect=True, attempts=2, delay=1)
     except mysql.connector.Error as err:
         db = init_db()
+
     return db.cursor(prepared=True)
 
 get_user_stmt = 'SELECT * FROM stammdaten WHERE besucher_id = %s LIMIT 1'
