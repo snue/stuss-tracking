@@ -24,14 +24,14 @@
 <input class="form-control mr-sm-2" type="text" placeholder="Kontakt (E-Mail oder Telefon)" aria-label="Kontakt (E-Mail oder Telefon)" name="kontakt" size="50" disabled="disabled" value="{{ kontakt }}">
 </li>
 <li style="margin-top:1em">
-    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="Gast" name="status" value="gast" {% if status == "gast" or status is not defined %}checked{% endif %}><label>Gast</label>
-    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="Band" name="status" value="band" {% if status == "band" %}checked{% endif %}><label>Band</label>
-    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="Crew" name="status" value="crew" {% if status == "crew" %}checked{% endif %}><label>Crew</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:1em" type="radio" aria-label="Gast" name="status" value="gast" {% if status == "gast" or status is not defined %}checked{% endif %}><label>Gast</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:1em" type="radio" aria-label="Band" name="status" value="band" {% if status == "band" %}checked{% endif %}><label>Band</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:1em" type="radio" aria-label="Crew" name="status" value="crew" {% if status == "crew" %}checked{% endif %}><label>Crew</label>
 </li>
 <li>
-    <input class="form-control mr-sm-2" style="display:inline;width:0;margin-top:.5rem" type="radio" aria-label="kommt" name="zustand" value="kommt" {% if zustand == "kommt" %}checked{% endif %}><label>Anwesend</label>
-    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="geht" name="zustand" value="geht" {% if zustand == "geht" %}checked{% endif %}><label>Abwesend</label>
-    <input class="form-control mr-sm-2" style="display:inline;width:0" type="radio" aria-label="reserviert" name="zustand" value="reserviert" {% if zustand == "reserviert" %}checked{% endif %}><label>Reservierung</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:1em;margin-top:.5rem" type="radio" aria-label="kommt" name="zustand" value="kommt" {% if zustand == "kommt" %}checked{% endif %}><label>Anwesend</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:1em" type="radio" aria-label="geht" name="zustand" value="geht" {% if zustand == "geht" %}checked{% endif %}><label>Abwesend</label>
+    <input class="form-control mr-sm-2" style="display:inline;width:1em" type="radio" aria-label="reserviert" name="zustand" value="reserviert" {% if zustand == "reserviert" %}checked{% endif %}><label>Reservierung</label>
 </li>
 <li style="margin-top:1em">
 <button class="btn btn-outline-success my-2 my-sm-0" type="submit" formaction="/stammdaten" formmethod="post">speichern</button>
