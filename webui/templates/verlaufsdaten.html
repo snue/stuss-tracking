@@ -28,7 +28,7 @@
     <td>{{ zeitstempel }}</td>
     <td><a href="./verlaufsdaten?scanner={{ scanner_id.decode() }}">{{ scanner_id.decode() }}</a></td>
     <td><a href="./verlaufsdaten?besucher_id={{ b_id }}">{{ b_id }}</a></td>
-    <td><a href="./stammdaten?besucher_id={{ b_id }}">{{ kontakt.decode()[:kontakt.decode().find(';')] }}</a></td>
+    <td><a href="./stammdaten?besucher_id={{ b_id }}">{{ kontakt.decode()[:kontakt.decode().find('\t')] }}</a></td>
     <td>{{ status.decode() }}</td>
     <td>{{ aktion.decode() }}</td>
     </tr>

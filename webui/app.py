@@ -17,6 +17,8 @@ app = Flask(__name__)
 GAST_MAX = 800
 CREW_BAND_MAX = 200
 
+SEPARATOR = '\t'
+
 key = RSA.importKey(open('stuss2021_key.pub').read())
 cipher = PKCS1_OAEP.new(key, hashAlgo=Hash.SHA256)
 
@@ -116,8 +118,8 @@ def stammdaten():
             message = 'Besucher*in mit ID {} aktualisiert.'.format(besucher_id)
             print(besucher)
             data = besucher[0][1].decode()
-            name = data[:data.find(';')]
-            kontakt = data[data.find(';')+1:]
+            name = data[:data.find(SEPARATOR)]
+            kontakt = data[data.find(SEPARATOR)+1:]
             print('Updating user {}'.format(besucher_id))
             cursor.execute(update_user_stmt, (status, zustand, besucher_id))
             lvl = 'success'
@@ -141,7 +143,7 @@ def stammdaten():
             if besucher_id == 0:
                 besucher_id = ''
                 message = ''
-            svg = generate_qr_svg(';')
+            svg = generate_qr_svg(SEPARATOR)
             return render_template('stammdaten.html', id = besucher_id,
                                    zustand = 'kommt', svg = Markup(svg), message = message, lvl = lvl)
         else:
@@ -149,8 +151,8 @@ def stammdaten():
                 data = b[1].decode()
                 status = b[2].decode()
                 zustand = b[3].decode()
-                name = data[:data.find(';')]
-                kontakt = data[data.find(';')+1:]
+                name = data[:data.find(SEPARATOR)]
+                kontakt = data[data.find(SEPARATOR)+1:]
                 if besucher_id != b[0]:
                     print('Warning: unexpected ID {} in query for {}'.format(
                         b[0], besucher_id))
@@ -166,7 +168,7 @@ def stammdaten():
 
             message = 'Besucher*in mit ID {} geladen.'.format(besucher_id)
 
-    svg = generate_qr_svg('{};{}'.format(name,kontakt))
+    svg = generate_qr_svg('{}{}{}'.format(name, SEPARATOR, kontakt))
     return render_template('stammdaten.html',
                            id = besucher_id,
                            name = name,
@@ -204,7 +206,7 @@ def generate_qrcode():
         # Generate Code / ID based on provided data
         name = request.form.get('name')
         kontakt = request.form.get('kontakt')
-        msg = '{};{}'.format(name, kontakt)
+        msg = '{}{}{}'.format(name, SEPARATOR, kontakt)
         id = (mmh3.hash(msg), '')[name == '' and kontakt == '']
         if id != '':
             message = 'QR Code mit ID {} erfolgreich erstellt.'.format(id)
@@ -226,9 +228,9 @@ def generate_qrcode():
             message = 'Besucher*in mit ID {} geladen.'.format(id)
             for b in besucher:
                 data = b[1].decode()
-                name = data[:data.find(';')]
-                kontakt = data[data.find(';')+1:]
-        msg = '{};{}'.format(name, kontakt)
+                name = data[:data.find(SEPARATOR)]
+                kontakt = data[data.find(SEPARATOR)+1:]
+        msg = '{}{}{}'.format(name, SEPARATOR, kontakt)
 
     # Generate QR Code
     svg = generate_qr_svg(msg)

@@ -93,7 +93,7 @@ def handle(scan):
     else:
         try:
             id, kontakt = decrypt_contact(scan)
-            name_idx = kontakt.find(';')
+            name_idx = kontakt.find('\t')
             if (name_idx == -1):
                 print('WARNUNG: Keine validen Kontaktdaten: "{}"'.format(kontakt))
                 return
