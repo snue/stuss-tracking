@@ -32,9 +32,11 @@ label em::before,label em::after{content:" – ";}
     <a href="entenschutz.html">Datenschutz</a>
     <script src="qrcode.alnum.min.js"></script>
     <script>
-var pk_bin = atob("___PKEY___");
-var pk = new Uint8Array(pk_bin.length);
-for(var i=0; i<pk.length; ++i) pk[i] = pk_bin.charCodeAt(i);
+function str2u8(source) {
+    var ret = new Uint8Array(source.length);
+    for(var i=0; i<ret.length; ++i) ret[i] = source.charCodeAt(i);
+    return ret;
+}
 function b45enc(b) {
     var r = [];
     var i = 0;
@@ -54,29 +56,53 @@ function b45enc(b) {
     return r;
 }
 function dbg(reason) {
-    document.getElementById("d").innerHTML="<em>Ups...</em> "+reason;
+    var d = document.getElementById("d");
+    if (arguments.length === 0) d.innerHTML += "🦆";
+    else d.innerHTML = "<br><em>Ups...</em> " + reason;
+}
+function showQR(c) {
+    var cipher = new Uint8Array(c);
+    var qr = qrcode(0,"H");
+    qr.addData(b45enc(cipher),"Alphanumeric");
+    qr.make();
+    o.innerHTML = qr.createSvgTag();
+}
+function forgeRSA() {
+    try {
+        var c = forge.pki.publicKeyFromPem("-----BEGIN PUBLIC KEY-----"+pk_b64+"-----END PUBLIC KEY-----").encrypt(t, 'RSA-OAEP', {md: forge.md.sha256.create()});
+        var c_u8 = str2u8(c);
+        showQR(c_u8);
+    } catch (e) {
+        dbg(e);
+    }
+}
+function cryptoPolyFill(err) {
+    dbg();
+    var s = document.createElement("script");
+    s.src = "forge.rsa.min.js";
+    s.onload = forgeRSA;
+    document.head.appendChild(s);
+    dbg();
 }
 function main() {
     var f = document.forms[0];
-    var o = document.getElementById("qrout");
     f.addEventListener("submit", function(e) {
         e.preventDefault();
-        o.innerHTML = "<div id='d'>mom<em>entchen</em>...</div>";
-        var t = (new TextEncoder).encode([f.elements.name.value, f.elements.contact.value.replace(/\s+/g,"")].join("\t"));
+        o.innerHTML = "<div id='d'>mom<em>entchen</em>... </div>";
+        t = (new TextEncoder).encode([f.elements.name.value, f.elements.contact.value.replace(/\s+/g,"")].join("\t"));
         var k_ = window.crypto.subtle.importKey("spki", pk, {name:"RSA-OAEP", hash:"SHA-256"}, false, ["encrypt"]);
         k_.then(function(k){
             var c_ = window.crypto.subtle.encrypt({name:"RSA-OAEP"}, k, t);
-            c_.then(function(c){
-                var cipher = new Uint8Array(c);
-                var qr = qrcode(0,"H");
-                qr.addData(b45enc(cipher),"Alphanumeric");
-                qr.make();
-                o.innerHTML = qr.createSvgTag();
-            },dbg);
-        },dbg);
+            c_.then(showQR, cryptoPolyFill);
+        }, cryptoPolyFill);
     });
 }
+var o = document.getElementById("qrout");
+var t = "";
+var pk_b64 = "___PKEY___";
+var pk_bin = atob(pk_b64);
 var polyfill = {};
+var pk = str2u8(pk_bin);
 polyfill.te = typeof TextEncoder === "undefined";
 polyfill.promise = typeof Promise === "undefined";
 polyfill.crypto = navigator.userAgent.indexOf("iP") != -1 || !!window.msCrypto;

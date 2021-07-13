@@ -3,7 +3,7 @@
 all: polyfill.js qrcode.alnum.min.js index.html
 
 upload: all
-	scp index.html entenschutz.html polyfill.js qrcode.alnum.min.js stuss:~/htdocs/qrona
+	scp index.html entenschutz.html polyfill.js qrcode.alnum.min.js forge.rsa.min.js stuss:~/htdocs/qrona
 
 index.html: index.html.src
 	# note to myself: do not forget that pkcs8 for ssh-keygen is spki for WebCrypto
