@@ -62,12 +62,13 @@ function dbg(reason) {
 }
 function showQR(c) {
     var cipher = new Uint8Array(c);
-    var qr = qrcode(0,"H");
+    var qr = qrcode(0,"L");
     qr.addData(b45enc(cipher),"Alphanumeric");
     qr.make();
     o.innerHTML = qr.createSvgTag();
 }
 function forgeRSA() {
+    dbg();
     try {
         var c = forge.pki.publicKeyFromPem("-----BEGIN PUBLIC KEY-----"+pk_b64+"-----END PUBLIC KEY-----").encrypt(t, 'RSA-OAEP', {md: forge.md.sha256.create()});
         var c_u8 = str2u8(c);
@@ -82,17 +83,16 @@ function cryptoPolyFill(err) {
     s.src = "forge.rsa.min.js";
     s.onload = forgeRSA;
     document.head.appendChild(s);
-    dbg();
 }
 function main() {
     var f = document.forms[0];
     f.addEventListener("submit", function(e) {
         e.preventDefault();
         o.innerHTML = "<div id='d'>mom<em>entchen</em>... </div>";
-        t = (new TextEncoder).encode([f.elements.name.value, f.elements.contact.value.replace(/\s+/g,"")].join("\t"));
-        var k_ = window.crypto.subtle.importKey("spki", pk, {name:"RSA-OAEP", hash:"SHA-256"}, false, ["encrypt"]);
+        t = [f.elements.name.value, f.elements.contact.value.replace(/\s+/g,"")].join("\t");
+        var k_ = window.crypto.subtle.importKey("spki", pk, {name:"RSA-OAEP", hash:{name:"SHA-256"}}, false, ["encrypt"]);
         k_.then(function(k){
-            var c_ = window.crypto.subtle.encrypt({name:"RSA-OAEP"}, k, t);
+            var c_ = window.crypto.subtle.encrypt({name:"RSA-OAEP"}, k, (new TextEncoder).encode(t));
             c_.then(showQR, cryptoPolyFill);
         }, cryptoPolyFill);
     });

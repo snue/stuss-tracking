@@ -1,3 +1,4 @@
+/* @preserve
 //---------------------------------------------------------------------
 //
 // QR Code Generator for JavaScript
@@ -15,6 +16,8 @@
 //
 //---------------------------------------------------------------------
 // adjustments for stuss: only alphanumerics
+// source: https://github.com/kazuhikoarase/qrcode-generator/blob/e02eef5/js/qrcode.js
+*/
 
 var qrcode = function() {
 
