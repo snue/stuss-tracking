@@ -11,10 +11,10 @@ h1{text-align:center;font-family:monospace;transform:rotate(3deg);}
 h1 span{display:block;font-size:0.7em;font-style:italic;transform:rotate(-5deg);}
 a{color:#400;}
 .short{margin:1em 0;}
-.short a{font-size:0.9em;font-style:italic;}
-.short a:hover{text-decoration:none;}
-body > a{display:block;padding:2em;font-size:1.1em;}
-#row{display:flex;flex-wrap:wrap;justify-content:space-between;margin:1em auto;padding-bottom:5em;background-image:radial-gradient(#0b3,#0e6);padding:1em;border-radius:1em;}
+div a{font-size:0.9em;font-style:italic;}
+a:hover{text-decoration:none;}
+body > a{display:inline-block;margin:2em;font-size:1.1em;}
+#row{display:flex;flex-wrap:wrap;justify-content:space-around;margin:1em auto;padding-bottom:5em;background-image:radial-gradient(#0b3,#0e6);padding:1em;border-radius:1em;}
 #row form{width:49%;}
 svg{display:block;padding:10px;max-width:90vw;max-height:90vh;}
 #qrout{display:flex;flex-direction:column;justify-content:center;align-items:center;border:1px gray solid;width:49%;border-radius:5px;min-height:200px;padding:0.5em;}
@@ -26,9 +26,9 @@ label em{display:block;}
 label em::before,label em::after{content:" – ";}
 #info,#info_en{padding:0.5em;}
 #info:target,#info_en:target{border:3px #994 dashed;border-radius:10px;}
-#e{font:0.8em monospace;}
+#e{font:0.8em monospace;margin-top:10em;}
 @media screen and (max-width:992px){#row form{width:100%;}#qrout{width:100%;}}
-@media print{form,.short,#info,#info_en,h2,a{display:none !important;}}
+@media print{form,.short,#info,#info_en,h2,a,#e{display:none !important;}}
     </style>
     <h1>stuss am fluss <span>kontakt­daten­gedöns</span></h1>
     <noscript><strong>ACHTUNG!</strong> Du musst JavaScript aktivieren, damit das Ding hier läuft. Momentan ist JavaScript bei dir deaktiviert. <em>Please enable Javascript.</em></noscript>
@@ -44,15 +44,17 @@ label em::before,label em::after{content:" – ";}
     <div id="qrout"></div>
     </div>
     <div id="info"><h2>Nochmal genauer</h2>
-    Tach nochmal! Für die Einhaltung der Corona-Auflagen benötigen wir eure Unterstützung. Bitte erstellt pro Person einen QR-Code mit euren Daten bevor ihr zum Festival kommt (siehe oben). Haltet ihn bei jedem Betreten und Verlassen des Geländes bereit, er wird zur Kontaktnachverfolgung und Gästezählung genutzt. Am Einlass vor Ort erfolgt die Registrierung. (Der QR-Code ist keine Einlassberechtigung! Eine Reservierung ist nur über folgende Adresse möglich: <code>info ät stussamfluss punkt de</code>) Euren persönlichen QR-Code könnt ihr wahlweise screenshotten, ausdrucken, oder tätowieren. Solltet ihr kein Smartphone, Drucker oder Tätowierer des Vertrauens haben, kommt trotzdem vorbei und gebt unserer Crew am Einlass Bescheid, es wird eine Möglichkeit geben, den QR-Code am Einlass zu generieren. Aber hey, derzeit hat doch niemand Bock in einer langen Schlange anzustehen also helft mit, die Wartezeit zu minimieren. Und vergesst eure Masken nicht.</div>
+    Tach nochmal! Für die Einhaltung der Corona-Auflagen benötigen wir eure Unterstützung. Bitte erstellt pro Person einen QR-Code mit euren Daten bevor ihr zum Festival kommt (siehe oben). Haltet ihn bei jedem Betreten und Verlassen des Geländes bereit, er wird zur Kontaktnachverfolgung und Gästezählung genutzt. Am Einlass vor Ort erfolgt die Registrierung. (Der QR-Code ist keine Einlassberechtigung! Eine Reservierung ist zur Zeit leider nicht mehr möglich.) Euren persönlichen QR-Code könnt ihr wahlweise screenshotten, ausdrucken, oder tätowieren. Solltet ihr kein Smartphone, Drucker oder Tätowierer des Vertrauens haben, kommt trotzdem vorbei und gebt unserer Crew am Einlass Bescheid, es wird eine Möglichkeit geben, den QR-Code am Einlass zu generieren. Aber hey, derzeit hat doch niemand Bock in einer langen Schlange anzustehen also helft mit, die Wartezeit zu minimieren. Und vergesst eure Masken nicht. <a href="#row">Zurück zum Formular</a></div>
     <div id="info_en"><h2>Further info</h2>
-    We need your support to comply with the Corona requirements. Please create your personal QR code with your contact details before you come to the festival. Keep it ready for every time you enter or leave the premises, it is used for contact tracking and guest counting. We will register you at the entrance (for reservations write an email to: <code>info at stussamfluss dot de</code>). If you do not have the opportunity to print the code, let our crew at the entrance know, there will be a possibility to generate the QR code at the entrance. But hey, at the moment nobody wants to wait in a long queue so help to minimize the waiting time. Don’t forget your masks.</div>
+    We need your support to comply with the Corona requirements. Please create your personal QR code with your contact details before you come to the festival. Keep it ready for every time you enter or leave the premises, it is used for contact tracking and guest counting. We will register you at the entrance. Reservations are not possible anymore. If you do not have the opportunity to print the code, let our crew at the entrance know, there will be a possibility to generate the QR code at the entrance. But hey, at the moment nobody wants to wait in a long queue so help to minimize the waiting time. Don’t forget your masks. <a href="#row">go back to the form</a></div>
     <a href="entenschutz.html">Datenschutz</a>
     <div id="e"></div>
     <script src="qrcode.alnum.min.js"></script>
     <script>
 function dbg(reason) {
-    document.getElementById("e").innerHTML += "<em>Ups...</em> " + reason + "<br>";
+    var dbgout = document.getElementById("e");
+    if(dbgout.innerHTML==="") dbgout.innerHTML = "Technik-Infos, bitte ignorieren:";
+    document.getElementById("e").innerHTML += "<br><em>Ups...</em> " + reason;
 }
 function ente() {
     var d = document.getElementById("d");
