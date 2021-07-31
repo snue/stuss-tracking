@@ -29,6 +29,7 @@ label em::before,label em::after{content:" – ";}
 #e{font:0.8em monospace;margin-top:10em;}
 @media screen and (max-width:992px){#row form{width:100%;}#qrout{width:100%;}}
 @media print{form,.short,#info,#info_en,h2,a,#e{display:none !important;}}
+@media (prefers-color-scheme: dark) {svg{background-color:white;}}
     </style>
     <h1>stuss am fluss <span>kontakt­daten­gedöns</span></h1>
     <noscript><strong>ACHTUNG!</strong> Du musst JavaScript aktivieren, damit das Ding hier läuft. Momentan ist JavaScript bei dir deaktiviert. <em>Please enable Javascript.</em></noscript>
